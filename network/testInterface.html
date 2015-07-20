@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link type="text/css" rel="stylesheet" href="_css/testInterface.css">
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <title>Cloud</title>
+	</head>
+    <body>
+    	<a>
+    	
+    	<ul>	
+    		
+    		<li>
+    		<div id="initialNode">
+    			Choose Initial Node
+    		</div>
+    		</li>
+    		
+    		<li>
+    		<div id="endNode">
+    			Choose End Node
+    		</div>
+    		</li>
+    		
+    		<li>
+    			<div id="buttonPathOwn">
+    				Choose your own path
+    			</div>
+    		</li>
+    		
+    		<li>
+    		<div id="buttonShortestPath">
+    			Analyze the Path
+    		</div>
+    		</li>
+    		
+    		<li>
+    			<div id="buttonDeleteLinks">
+    				Delete Certain Links
+    			</div>
+    		</li>
+    		
+    		<li>
+    			<div id="buttonLinkMultiplier">
+    				Link Multiplier Factor
+    			</div>
+    		</li>
+    		
+    		<li>
+    			<div id="buttonReset">
+    				Reset
+    			</div>
+    		</li>
+    	</ul>	
+    		
+    	</a>
+    	
+    	<svg id="cloud" width="1200" height="1200"> 
+    		<defs>
+                <marker id="arrow" viewbox="0 -5 10 10" refX="18" refY="0"
+                        markerWidth="6" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto">
+                    <path d="M0,-5L10,0L0,5Z"> </path>
+                </marker>
+           </defs>
+    	</svg> 	
+ 	  
+    	
+    	<script type="text/javascript">
+			var width = 800;
+			var height = 800;
+			var svg = d3.select("#cloud");
+			svg.attr("width", width).attr("height", height);
+			d3.csv("Buffalo.csv", function(linksData) {
+				d3.csv("BuffaloNode.csv", function(nodesData) {
+										
+    				var minCons = Infinity,maxCons = -Infinity,minProb = Infinity,maxProb = -Infinity;					
+    				for (var i=0; i<linksData.length; i++) {
+        				linksData[i].source     = + linksData[i].start_node;
+        				linksData[i].target     = + linksData[i].end_node;
+        				linksData[i].arc_length = + linksData[i].arc_length;
+        				linksData[i].acc_prob   = + linksData[i].accident_probability;
+        				linksData[i].acc_cons   = + linksData[i].accident_consequence;
+        				linksData[i].selected = false;
+
+        				minCons = Math.min(linksData[i].acc_cons, minCons);
+        				maxCons = Math.max(linksData[i].acc_cons, maxCons);
+        				minProb = Math.min(linksData[i].acc_prob, minProb);
+        				maxProb = Math.max(linksData[i].acc_prob, maxProb);
+    				}
+
+    				var minX = Infinity,maxX = -Infinity,minY = Infinity,maxY = -Infinity;
+
+    				for (var i=0; i<nodesData.length; i++) {
+       					nodesData[i].number = + nodesData[i].Node;
+        				nodesData[i].easting = + nodesData[i].easting;
+        				nodesData[i].northing = - nodesData[i].northing;
+
+        				minX = Math.min(nodesData[i].easting, minX);
+        				maxX = Math.max(nodesData[i].easting, maxX);
+
+        				minY = Math.min(nodesData[i].northing, minY);
+        				maxY = Math.max(nodesData[i].northing, maxY);
+    				}    
+
+    				var xScale = d3.scale.linear().domain([minX, maxX]).range([0+0.1*width, 0.9*width]);
+    				var yScale = d3.scale.linear().domain([minY, maxY]).range([0+0.1*height, 0.9*height]);
+
+    				var consScale = d3.scale.linear().domain([minCons, maxCons]).range([2, 15]);
+    				var probScale = d3.scale.linear().domain([minProb, maxProb]).range([200, 0]);
+    				
+    				var deleteFlag=false;
+
+    				var svgLinks = svg.append("g").selectAll("line.link")
+        							.data(linksData)
+        							.enter().append("line")
+        							.attr("class", "link")
+        							//.attr("marker-end", "url(#arrow)")
+        							.attr("x1", function(d) { return xScale(nodesData[d.source-1].easting); })
+        							.attr("y1", function(d) { return yScale(nodesData[d.source-1].northing); })
+        							.attr("x2", function(d) { return xScale(nodesData[d.target-1].easting); })
+        							.attr("y2", function(d) { return yScale(nodesData[d.target-1].northing); });
+        							//.text(function(d){ return d.arc_length; })
+        							//.style("stroke", function(d){ return d3.rgb(255,probScale(d.acc_prob),probScale(d.acc_prob)); })
+        							//.style("stroke-width", function(d){ return consScale(d.acc_cons); })
+        							svgLinks.on("click", function(d,i){ 
+            							//d.selected = d.selected===1? 0:1 ;
+            							//var colorSelected = d3.rgb(probScale(d.acc_prob),probScale(d.acc_prob),255);
+            							//var colorUnselected = d3.rgb(255,probScale(d.acc_prob),probScale(d.acc_prob));
+            							            							//linksData[i].selected=true;
+            							if(deleteFlag==true)
+            							{
+            								d3.select(this).style("opacity", 1).transition().duration(100).style("opacity", 0);
+            								linksData[i].arc_length=Infinity;
+            							}
+            							else
+            							{
+            								linksData[i].selected=( linksData[i].selected==true? false:true);
+            								var colorSelected="#CC0000", colorUnselected="#FF9999";
+            								var linkColor = linksData[i].selected? colorSelected : colorUnselected;
+
+            								d3.select(this).style("stroke",linkColor);
+
+            							}
+        							});
+        							
+        			svgLinks.append("svg:title")
+        					.text( function(d){  return "Start node: "+d.source+"\nEnd node: "+d.target+"\nLink length: "+d.arc_length;});
+        			var svgNodesGroup = svg.append("g");
+    				var svgNodes = svgNodesGroup.selectAll("circle.node")
+        							.data(nodesData)
+        							.enter().append("circle")
+        							.attr("class", "node")
+        							.attr("r", 4.5)
+        							.style("fill", "blue")
+        							.attr("cx", function(d){ return xScale(d.easting); })
+        							.attr("cy", function(d){ return yScale(d.northing); });
+        							
+        			svgNodes.append("svg:title").text( function(d){  return "Node number is "+d.number; });
+        							
+  					var start=-1, end=-1;
+  					var arcFunctionFlag=false;
+  					var undirected=true;
+  					d3.select("#buttonShortestPath").on("click", function(){
+  						//alert("clicked");
+  						//debugger;
+  						if(arcFunctionFlag==true)
+  						{
+  							pathStartEnd();
+  							dijkstra(start,end);
+  							arcFunctionFlag=false;
+  							d3.select("#buttonPathOwn").style("background-color", "#BCD2EE");
+  						}
+  						else
+  						{
+  							if(start>=0 && end >=0)
+  							{
+  								dijkstra(start,end);
+  							}
+  							else
+  							{
+  								alert("Please choose origin and destination nodes or choose your own path.");
+  							}
+  						}	
+  						
+  					});
+  					
+  					d3.select("#initialNode").on("click", function(){
+  						//var colorUnselected="#FF9999";
+  						//svgNodes.style("fill", "blue");
+  						//svgLinks.style("stroke", colorUnselected);
+  						d3.select("#initialNode").style("background-color", "#6495ED");
+  						svgNodes.data(nodesData).on("click", function(d,i){
+  							d3.select(this).style("fill", "red");
+  							start=i;
+  							d3.select("#initialNode").style("background-color", "#BCD2EE");
+  						});
+  						
+  					});
+  					
+  					d3.select("#endNode").on("click", function(){
+  						//var colorUnselected="#FF9999";
+  						//svgNodes.style("fill", "blue");
+  						//svgLinks.style("stroke", colorUnselected);
+  						d3.select(this).style("background-color", "#6495ED");
+  						svgNodes.data(nodesData).on("click", function(d,i){
+  							d3.select(this).style("fill", "red");
+  							end=i;
+  							d3.select("#endNode").style("background-color", "#BCD2EE");
+  						});
+  						
+  					});
+  					
+  					d3.select("#buttonPathOwn").on("click", function(){
+  						arcFunctionFlag=true;
+  						d3.select(this).style("background-color", "#6495ED");
+  					});
+  					
+  					
+  					d3.select("#buttonDeleteLinks").on("click", function(){
+  						deleteFlag=deleteFlag?false:true;
+  						
+  						d3.select(this).text(function(){
+  							return deleteFlag?"Stop Deleting Links":"Delete Certain Links";
+  						});
+  						d3.select(this).style("background-color", function(){
+  							return deleteFlag?"#6495ED":"#BCD2EE";
+  						});
+  					});
+  					
+  					d3.select("#buttonLinkMultiplier").on("click", function(){
+  						var multiFactor = +prompt("Please enter the multiplier factor","1");
+  						debugger;
+  						for(var i=0;i<linksData.length; i++)
+  						{
+  							linksData[i].arc_length=linksData[i].arc_length*multiFactor;
+  						}
+  						//d3.selectAll("svg:title").exit().remove();
+  						svgLinks.data(linksData).select("title")
+        					.text( function(d){  return "Start node: "+d.source+"\nEnd node: "+d.target+"\nLink length: "+d.arc_length;});
+  					});
+  					
+  					
+  					d3.select("#buttonReset").on("click", function(){
+  						var colorUnselected="#FF9999";
+  						svgNodes.style("fill", "blue");
+  						svgLinks.style("stroke", colorUnselected);
+  						start=-1;
+  						end=-1;
+  					});
+  					
+  					//to check the validity of the chosen path and obtain the start and end node.
+  					//return the selected path cost
+  					function pathStartEnd(){
+  						var numNodes=nodesData.length;
+  						var numLinks=linksData.length;
+  						var nodesPathOwn=[];
+  						for(var i=0; i<numNodes; i++)
+  						{
+  							nodesPathOwn[i]=[];	
+  						}  		
+  						for(var i=0; i<numLinks; i++)
+  						{
+  							//to obtain the occurence number of specific node
+  							if(linksData[i].selected==true)
+  							{
+  								var indexStart=linksData[i].source-1;
+  								var indexEnd=linksData[i].target-1;
+  								nodesPathOwn[indexStart].push(indexStart);
+  								nodesPathOwn[indexEnd].push(indexEnd);
+  							}
+  						}
+  						
+  						//obtain the possible start end nodes
+  						var odNode=[];
+  						for(var i=0; i<numNodes; i++)
+  						{
+  							if(nodesPathOwn[i].length==1)
+  							{
+  								odNode.push(i);
+  							}
+  						}
+  						
+  						//by checking the number of the start and end nodes to determine the path validity
+  						//and then obtain the start and end node
+  						if (odNode.length!=2)
+  						{
+  							reset();
+  							alert("Your chosen path is not appropriate.\nPlease choose your path again.");
+  							return -1;
+  						}
+  						else
+  						{
+  							var startFlag=false;
+  							for(var i=0; i<numLinks; i++)
+  							{
+  								if(linksData[i].selected==true)
+  								{
+  									if(linksData[i].source==(odNode[0]+1))
+  									{
+  										startFlag=true;
+  										break;
+  									}
+  								}
+  							}
+  							
+  							if(startFlag==true)
+  							{
+  								start=odNode[0];
+  								end=odNode[1];
+  							}
+  							else
+  							{
+  								end=odNode[0];
+  								start=odNode[1];
+  							}
+  							
+  							var pathOwnCost=0;
+  							for(var i=0; i<numLinks; i++)
+  							{
+  								if(linksData[i].selected==true)
+  								{
+  									pathOwnCost=pathOwnCost+linksData[i].arc_length;
+  								}
+  							}
+  							alert("The cost of your chosen path is "+pathOwnCost);
+  							return pathOwnCost;
+  								
+  						}
+  					};
+  					
+  					//reset function to set the dispaly and chosen parameters
+  					function reset(){
+  						var colorUnselected="#FF9999";
+  						svgNodes.style("fill", "blue");
+  						svgLinks.style("stroke", colorUnselected);
+  						start=-1;
+  						end=-1;
+  						for(var i=0; i<linksData.length; i++)
+  						{
+  							linksData[i].selected=false;
+  						}
+  					};
+  					
+  				//obtain the shortest path using dijkstra method, here we use a O(n^2) due to simplicity	
+  				function dijkstra(nodeBegin, nodeEnd){
+  					//starting to solve shortest path using Dijkstra labeling method
+  					var numNodes=nodesData.length;
+  					var numLinks=linksData.length;
+  					//linksFromNode is the links originate from node i
+  					var linksFromNode=[];
+  					for(var i=0; i<numNodes; i++)
+  					{
+  						linksFromNode[i]=[];	
+  					}  					
+  					for(var i=0; i<numLinks; i++)
+  					{
+  						var source=linksData[i].source-1;
+  						linksFromNode[source].push(i);
+  						var undirected = linksData[i].target-1;
+  						linksFromNode[undirected].push(i);
+  					} 
+  					//linkPath is the chosen shortest path link that ends in node i
+  					//distance is the length of the shortest path
+  					//nodeDone is to store whether one node is done or not
+  					var linkPath=[];
+  					var distance=[];
+  					var nodeDone=[];
+  					for(var i=0; i<numNodes; i++)
+  					{
+  						linkPath[i]=-1;
+  						distance[i]=Infinity;
+  						nodeDone[i]=false;
+  					} 
+  					
+  					var current=nodeBegin;
+  					nodeDone[nodeBegin]=true;
+  					distance[nodeBegin]=0;
+  					var minCost=-1, minCostNode=-1;
+  					var t=0;
+  					while(minCost!=Infinity && current!=nodeEnd)
+  					{
+  						//enumerate all the nodes that are connected to the current node and update the distance value
+  						for(var i=0; i<linksFromNode[current].length; i++)
+  						{
+  							var linkNext=linksFromNode[current][i];
+  							var nodeNext=(linksData[linkNext].source-1)==current?linksData[linkNext].target-1:linksData[linkNext].source-1;
+  							if(distance[nodeNext]> (distance[current]+linksData[linkNext].arc_length) && nodeDone[nodeNext]!=true )
+  							{
+  								distance[nodeNext]=(distance[current]+linksData[linkNext].arc_length);
+  								linkPath[nodeNext]=linkNext;
+								
+  								/*svgLinks.each(function(d,i){
+  									if(i==linkNext)
+  									{
+  										d3.select(this).transition().delay(t*2000).style("stroke", "#6495ED");
+  										svgNodes.each(function(d,i){
+  											if(i==nodeNext&&i!=end)
+  											{
+  												d3.select(this).transition().delay(t*2000+500).style("fill", "#6495ED");
+  											}
+  										});
+  										t=t+1;
+  									}
+  								});*/
+  							}
+  						}
+  						
+  						minCost=Infinity;
+  						
+  						//find all the undone nodes and find the minimum distance node
+  					    for(var i=0; i<numNodes; i++)
+  					    {
+  					    	if(nodeDone[i]==false && distance[i]<minCost)
+  					    	{
+  					    		minCost=distance[i];
+  					    		minCostNode=i;
+  					    	}
+  					    }
+  					    
+  					    nodeDone[minCostNode]=true;
+  					    //animate the current node and denotes it is done
+  					   /* svgNodes.each(function(d,i){
+  							if(i==current&&i!=end&&i!=start)
+  							{
+  								d3.select(this).transition().delay(t*2000+1000).style("fill", "#6495ED");
+  							}
+  						});*/
+  						var linkDone=linkPath[current];
+  						//animate the links ends in the current node
+  						svgLinks.each(function(d,i){
+  							if(i==linkDone)
+  							{
+  								d3.select(this).transition().delay(t*2000).style("stroke", "#6495ED");
+  								
+  							}
+  						});
+  						
+
+  					    //denote and animate the node that is done and animate the links
+  					    current=minCostNode;
+  					    svgNodes.each(function(d,i){
+  							if(i==minCostNode&& i!=end &&i!=start)
+  							{
+  								d3.select(this).transition().delay(t*2000+1000).style("fill", "red");
+  							}
+  						});
+  						svgNodes.each(function(d,i){
+  							if(i==minCostNode&& i!=end &&i!=start)
+  							{
+  								d3.select(this).transition().delay(t*2000+1500).style("fill", "#6495ED");
+  							}
+  						});
+  						
+  						t=t+1;
+  					}
+  					//alert("Minimum distance is "+distance[nodeEnd]);
+  					//obtain the path from the result
+  					var shortestPath=[];
+  					for(var i=0; i<numLinks; i++)
+  					{
+  						shortestPath[i]=false;	
+  					} 
+  					var node=nodeEnd; 					
+					while(node!=nodeBegin)
+					{
+						var link = linkPath[node];
+						shortestPath[link]=true;
+						//node=linksData[link].source-1;
+						node=(linksData[link].target-1)==node?linksData[link].source-1:linksData[link].target-1;
+					}
+					svgLinks.data(shortestPath).transition().delay(t*2000+50).style("stroke", function(d){ 
+							return d?"#00FF00":d3.select(this).style("stroke"); 
+					});
+					
+					svgNodes.each(function(d,i){
+  						if(i!=end)
+  						{
+  							if(i!=start)
+  								d3.select(this).transition().delay(t*2000+500).style("fill", "blue");
+  						}
+  					});
+					
+					return +distance[nodeEnd];
+				}
+        							
+    			});
+            });
+    	</script> 
+    </body>
+</html>
+

@@ -1,0 +1,236 @@
+
+* {
+	border:0 none;
+	margin:0;
+	padding:0;
+	/*max-width:1600px*/
+}
+
+body {
+    /*background: #E3CAA1;
+    background: #D3D3D3;
+    font: 13px 'trebuchet MS',Arial,Helvetica;*/
+    
+    background:#fff;
+	color:#666;
+	/*font:0.75em/100% 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;*/
+	font: 13px 'trebuchet MS',Arial,Helvetica;
+	line-height:1.4em;
+	background:#fff url('../image/background_content1.jpg') center repeat-y;
+	clear:both;
+	width:100%;
+	position: float;
+}
+
+/* header */
+#header {
+	
+	background:#323232 url('../image/background_header2.jpg') center repeat-y;
+	width:100%;
+	
+}
+#header:after {
+	clear:both;
+	content:'.';
+	display:block;
+	height:0;
+	visibility:hidden;
+}
+#header_inside {
+	border-left:1px solid #bbb;
+	border-right:1px solid #bbb;
+	margin:0 auto;
+	width:800px;
+}
+#header_inside h1 {
+	color:#fff;
+	float:left;
+	font:3.2em 'Trebuchet MS', Verdana, sans-serif;
+	height:100px;
+	line-height:100px;
+	margin:0 0 0 20px;
+	width:180px;
+}
+#header_inside h1 span {
+	color:#9c0;
+}
+#header_inside ul {
+	float:right;
+	height:100px;
+	list-style:none;
+	width:600px;
+}
+#header_inside ul li {
+	border-right:1px solid #555;
+	float:right;
+	height:100px;
+	list-style:none;
+	width:75px;
+}
+#header_inside ul li a {
+	color:#fff;
+	display:block;
+	height:50px;
+	line-height:50px;
+	padding:50px 0 0;
+	text-align:center;
+	width:75px;
+}
+#header_inside ul li a:hover {
+	background: none repeat scroll 0 0 #FFFFFF;
+    color: #111111;
+}
+#header_inside ul li a.active {
+	background: none repeat scroll 0 0 #FFFFFF;
+    color: #111111;
+}
+
+
+a {
+    color: #99CC00;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #555555;
+    text-decoration: none;
+}
+
+#navigation { 
+	font-size:1.5em; width:20%; 
+	left:50px;
+	top:150px;
+	/*position:absolute;*/
+	position:fixed;
+    margin:10px auto;
+}
+#navigation ul { margin:0; padding:0; }
+#navigation li { list-style: none; }
+#navigation ul.top-level { background:#fff; }
+ 
+ul.top-level li {
+ border-bottom: #fff solid;
+ border-top: #fff solid;
+ border-width: 1px;
+}
+
+#navigation div {
+ 	border-radius: 5px;
+	border: 2px solid #fff;
+	background-color: #fff;
+	height: 35px;
+	width: 300px;
+	text-align: right;	
+	padding-top:5px;
+	font-size:20px;
+	opacity: 1;
+	cursor:pointer;
+	display:block;
+}
+ 
+#navigation div:hover{
+ background-color:#FFA500;
+ position: relative;
+ cursor: pointer;
+}
+
+#navigation li:hover {
+ /*background-color: #FFA500;*/
+ position: relative;
+}
+
+ul.sub-level {
+    display: none;
+}
+
+li:hover .sub-level {
+    background: #fff;
+    border: #fff solid;
+    border-width: 1px;
+    display: block;
+    /*display: block;*/
+    position: absolute;
+   /*position:relative;*/
+    left: 270px;
+    top: 5px;
+    /*text-align: left;*/
+   width:150px;
+}
+
+ul.sub-level li {
+    border: none;
+    float:left;
+    width:100px;
+    /*text-align: left;*/
+}
+
+
+
+circle.node {
+    stroke: #fff;
+    stroke-width: 1px;
+    fill-opacity:1;
+}
+
+path {
+	fill: none;
+  	stroke: #FF9999;
+  	stroke-width: 2px;
+    stroke-opacity: 1;
+}
+
+/*used for network visualization*/
+line.link {
+    fill: none;
+  	stroke: #FF9999;
+  	stroke-width: 2px;
+    stroke-opacity: 1;
+}
+
+line.linkselected{
+    stroke-width: 5px;
+    stroke: red;
+    stroke-opacity: 0.6;
+}
+
+marker#arrow {
+    stroke: #999;
+    fill: #999;
+}
+
+svg#cloud{
+	left:30%;
+	top:60px;
+	position:absolute;
+}
+
+/* used as a scrollbox */
+#output {
+	width:20%;
+	height:75%;
+	/*font: 1.3em 'trebuchet MS',Arial,Helvetica;*/
+	font: 0.95em Courier , Georgia, ‘Times New Roman’, serif;
+	line-height:1.35em;
+	text-align:justify;text-justify:inter-ideograph;
+	/*line-height:3em;*/
+	/*overflow:scroll;*/
+	overflow:auto;
+	padding:5px;
+	/*background-color:#FCFADD;*/
+	background-color:#FFFFFF;
+	/*color:#714D03;*/
+	color:#666666;
+	scrollbar-base-color:#DEBB07;
+	left:77%;
+	top:15%;
+	position:absolute;
+}
+
+#outputUl{
+	list-style-type: circle;
+}
+
+
+
+
+

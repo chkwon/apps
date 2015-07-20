@@ -1,0 +1,39 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>无标题文档</title>
+<style type="text/css">
+a,li{ list-style-type:none; text-decoration:none;}
+p,ul,li{ margin:0px;}
+p{ margin-left:20px;}
+.child{ display:none;}
+</style>
+<script type="text/javascript">
+	function show(id){
+		var ul = document.getElementById(id);
+		if(ul.style.display == "block"){
+			ul.style.display = "none";
+		}else{
+			ul.style.display = "block"; 
+		}
+	}
+</script>
+</head>
+
+<body>
+	<b>Tree menu</b>
+	<p><a href="javascript:show('se')">JavaSE</a></p>
+		<ul id="se" class="child">
+			<li>JavaOOP</li>
+			<li>JavaI/O</li>
+			<li>JavaSocket</li>
+		</ul>
+	<p><a  href="javascript:show('ee')">JavaWeb</a></p>
+		<ul id="ee" class="child">
+			<li>Html</li>
+			<li>Css</li>
+			<li>Javascript</li>
+			<li>oracle</li>
+		</ul>
+</body>
+</html>
